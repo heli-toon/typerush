@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⌨️ TypeRush</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">⌨️ TypeRush</h1>
+                <div class="theme-selector">
+                    <span class="theme-label">🎨 Theme:</span>
+                    <select id="themeSelect" class="theme-select">
+                        <option value="dark">🌙 Dark</option>
+                        <option value="purple">💜 Purple Gradient</option>
+                        <option value="blue">💙 Blue</option>
+                        <option value="light">☀️ Light</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="typing-test">📝 Typing Test</button>
+            <button class="nav-tab" data-tab="html-practice">💻 HTML Practice</button>
+            <button class="nav-tab" data-tab="word-race">🏃 Word Race</button>
+            <button class="nav-tab" data-tab="typing-shooter">🎯 Typing Shooter</button>
+            <button class="nav-tab" data-tab="content-manager">⚙️ Manage Content</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Typing Test Tab -->
+            <div id="typing-test" class="tab-content active">
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">⏱️ Time</span>
+                        <span class="stat-value" id="timer">0s</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">⚡ WPM</span>
+                        <span class="stat-value" id="wpm">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🎯 Accuracy</span>
+                        <span class="stat-value" id="accuracy">100%</span>
+                    </div>
+                </div>
+                
+                <div class="typing-area">
+                    <div class="text-display" id="textDisplay"></div>
+                    <textarea class="typing-input" id="typingInput" placeholder="Start typing here..."></textarea>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startTest">🚀 Start Test</button>
+                    <button class="btn btn-secondary" id="resetTest">🔄 Reset</button>
+                    <button class="btn btn-secondary" id="newText">📄 New Text</button>
+                </div>
+            </div>
+
+            <!-- HTML Practice Tab -->
+            <div id="html-practice" class="tab-content">
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">⏱️ Time</span>
+                        <span class="stat-value" id="htmlTimer">0s</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">⚡ WPM</span>
+                        <span class="stat-value" id="htmlWpm">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🎯 Accuracy</span>
+                        <span class="stat-value" id="htmlAccuracy">100%</span>
+                    </div>
+                </div>
+                
+                <div class="typing-area">
+                    <div class="code-display" id="htmlDisplay"></div>
+                    <textarea class="typing-input code-input" id="htmlInput" placeholder="Type the HTML code here..."></textarea>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startHtml">🚀 Start Practice</button>
+                    <button class="btn btn-secondary" id="resetHtml">🔄 Reset</button>
+                    <button class="btn btn-secondary" id="newSnippet">📄 New Snippet</button>
+                </div>
+            </div>
+
+            <!-- Word Race Game -->
+            <div id="word-race" class="tab-content">
+                <div class="game-info">
+                    <div class="stat-item">
+                        <span class="stat-label">🏁 Words</span>
+                        <span class="stat-value" id="wordsCompleted">0/10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">⏱️ Time</span>
+                        <span class="stat-value" id="raceTimer">30s</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🏆 Score</span>
+                        <span class="stat-value" id="raceScore">0</span>
+                    </div>
+                </div>
+                
+                <div class="race-area">
+                    <div class="race-word" id="raceWord">Click Start to begin!</div>
+                    <input type="text" class="race-input" id="raceInput" placeholder="Type the word and press Enter">
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startRace">🏁 Start Race</button>
+                    <button class="btn btn-secondary" id="resetRace">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- Typing Shooter Game -->
+            <div id="typing-shooter" class="tab-content">
+                <div class="game-info">
+                    <div class="stat-item">
+                        <span class="stat-label">🎯 Targets</span>
+                        <span class="stat-value" id="targetsHit">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">💯 Score</span>
+                        <span class="stat-value" id="shooterScore">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">❤️ Lives</span>
+                        <span class="stat-value" id="lives">3</span>
+                    </div>
+                </div>
+                
+                <div class="shooter-area" id="shooterArea">
+                    <div class="shooter-instruction">Type the falling words to shoot them! 🚀</div>
+                </div>
+                
+                <input type="text" class="shooter-input" id="shooterInput" placeholder="Type falling words here">
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startShooter">🎮 Start Game</button>
+                    <button class="btn btn-secondary" id="resetShooter">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- Content Manager Tab -->
+            <div id="content-manager" class="tab-content">
+                <div class="content-section">
+                    <h3>📝 Typing Test Texts</h3>
+                    <textarea id="typingTextsEditor" class="content-editor" placeholder="Enter typing test texts (one per line)"></textarea>
+                    <button class="btn btn-primary" id="saveTypingTexts">💾 Save Texts</button>
+                </div>
+                
+                <div class="content-section">
+                    <h3>💻 HTML Snippets</h3>
+                    <textarea id="htmlSnippetsEditor" class="content-editor" placeholder="Enter HTML snippets (one per line)"></textarea>
+                    <button class="btn btn-primary" id="saveHtmlSnippets">💾 Save Snippets</button>
+                </div>
+                
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

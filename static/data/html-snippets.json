@@ -1,0 +1,14 @@
+{
+  "snippets": [
+    "<div class=\"container\"><h1>Welcome to HTML</h1><p>This is a basic HTML structure.</p></div>",
+    "<nav class=\"navbar\"><ul><li><a href=\"#home\">Home</a></li><li><a href=\"#about\">About</a></li><li><a href=\"#contact\">Contact</a></li></ul></nav>",
+    "<form action=\"/submit\" method=\"post\"><input type=\"text\" name=\"username\" required><input type=\"email\" name=\"email\" required><button type=\"submit\">Submit</button></form>",
+    "<section class=\"hero\"><h2>Hero Section</h2><p>This is the main hero content.</p><button class=\"cta-button\">Get Started</button></section>",
+    "<article class=\"blog-post\"><header><h3>Blog Post Title</h3><time datetime=\"2024-01-15\">January 15, 2024</time></header><p>Blog content goes here.</p></article>",
+    "<footer class=\"site-footer\"><div class=\"footer-content\"><p>&copy; 2024 Company Name. All rights reserved.</p></div></footer>",
+    "<table class=\"data-table\"><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody><tr><td>John Doe</td><td>john@example.com</td><td>Developer</td></tr></tbody></table>",
+    "<div class=\"card\"><img src=\"image.jpg\" alt=\"Card image\"><div class=\"card-body\"><h5>Card Title</h5><p>Card description text.</p></div></div>",
+    "<aside class=\"sidebar\"><h4>Quick Links</h4><ul><li><a href=\"#link1\">Link One</a></li><li><a href=\"#link2\">Link Two</a></li></ul></aside>",
+    "<main class=\"main-content\"><section id=\"about\"><h2>About Us</h2><p>We are a team of passionate developers.</p></section></main>"
+  ]
+}
