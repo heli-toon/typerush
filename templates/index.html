@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⌨️ TypeRush</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TypeRush</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png" />
 </head>
 <body>
     <div class="app-container">
@@ -14,7 +15,7 @@
                 <h1 class="logo">⌨️ TypeRush</h1>
                 <div class="theme-selector">
                     <span class="theme-label">🎨 Theme:</span>
-                    <select id="themeSelect" class="theme-select">
+                    <select id="themeSelect" class="theme-select" title="Select Theme">
                         <option value="dark">🌙 Dark</option>
                         <option value="purple">💜 Purple Gradient</option>
                         <option value="blue">💙 Blue</option>
@@ -60,7 +61,7 @@
                 <div class="controls">
                     <button class="btn btn-primary" id="startTest">🚀 Start Test</button>
                     <button class="btn btn-secondary" id="resetTest">🔄 Reset</button>
-                    <button class="btn btn-secondary" id="newText">📄 New Text</button>
+                    <button class="btn btn-secondary" id="toggleBackspace">⛔ Disable Backspace</button>
                 </div>
             </div>
 
@@ -89,7 +90,7 @@
                 <div class="controls">
                     <button class="btn btn-primary" id="startHtml">🚀 Start Practice</button>
                     <button class="btn btn-secondary" id="resetHtml">🔄 Reset</button>
-                    <button class="btn btn-secondary" id="newSnippet">📄 New Snippet</button>
+                    <button class="btn btn-secondary" id="toggleBackspaceHtml">⛔ Disable Backspace</button>
                 </div>
             </div>
 

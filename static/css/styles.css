@@ -282,6 +282,17 @@ body {
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
+.hide-caret {
+    caret-color: transparent !important;
+}
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+}
+
 /* Controls */
 .controls {
     display: flex;
@@ -601,4 +612,19 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent-color);
+}
+
+/* HTML Syntax Highlighting */
+.html-tag {
+    color: #8be9fd;
+    font-weight: bold;
+}
+.html-tag-name {
+    color: #ffb86c;
+}
+.html-attr {
+    color: #50fa7b;
+}
+.html-string {
+    color: #f1fa8c;
 }

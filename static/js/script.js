@@ -12,6 +12,9 @@ class TypingTestApp {
         this.timer = null;
         this.totalCharacters = 0;
         this.correctCharacters = 0;
+        this.bestWpm = parseInt(localStorage.getItem('typing-test-best-wpm') || '0', 10);
+        this.confettiCanvas = null;
+        this.disableBackspace = false;
         
         // HTML practice state
         this.isHtmlTyping = false;
@@ -19,6 +22,7 @@ class TypingTestApp {
         this.htmlTimer = null;
         this.htmlTotalCharacters = 0;
         this.htmlCorrectCharacters = 0;
+        this.disableBackspaceHtml = false;
         
         // Word Race state
         this.raceActive = false;
@@ -46,6 +50,14 @@ class TypingTestApp {
         this.bindEvents();
         this.loadData();
         this.showTab(this.currentTab);
+
+        // Hide caret initially
+        document.getElementById('typingInput').classList.add('hide-caret');
+        document.getElementById('htmlInput').classList.add('hide-caret');
+
+        // Disable text selection for display areas
+        document.getElementById('textDisplay').classList.add('no-select');
+        document.getElementById('htmlDisplay').classList.add('no-select');
     }
     
     loadTheme() {
@@ -61,42 +73,81 @@ class TypingTestApp {
     
     bindEvents() {
         // Theme selector
-        document.getElementById('themeSelect').addEventListener('change', (e) => {
-            this.applyTheme(e.target.value);
-        });
-        
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) themeSelect.addEventListener('change', (e) => this.applyTheme(e.target.value));
+
         // Navigation tabs
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 this.showTab(e.target.dataset.tab);
             });
         });
-        
+
         // Typing Test
-        document.getElementById('startTest').addEventListener('click', () => this.startTypingTest());
-        document.getElementById('resetTest').addEventListener('click', () => this.resetTypingTest());
-        document.getElementById('newText').addEventListener('click', () => this.loadNewText());
-        document.getElementById('typingInput').addEventListener('input', (e) => this.handleTyping(e));
-        
+        const startTest = document.getElementById('startTest');
+        if (startTest) startTest.addEventListener('click', () => this.startTypingTest());
+        const resetTest = document.getElementById('resetTest');
+        if (resetTest) resetTest.addEventListener('click', () => this.resetTypingTest());
+        const typingInput = document.getElementById('typingInput');
+        if (typingInput) {
+            typingInput.addEventListener('input', (e) => this.handleTyping(e));
+            typingInput.addEventListener('keydown', (e) => {
+                if (!this.isTyping && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    e.preventDefault();
+                }
+                if (this.disableBackspace && e.key === 'Backspace') {
+                    e.preventDefault();
+                }
+            });
+        }
+        const newText = document.getElementById('newText');
+        if (newText) newText.addEventListener('click', () => this.loadNewText());
+        const toggleBackspace = document.getElementById('toggleBackspace');
+        if (toggleBackspace) toggleBackspace.addEventListener('click', () => this.toggleBackspace());
+
         // HTML Practice
-        document.getElementById('startHtml').addEventListener('click', () => this.startHtmlPractice());
-        document.getElementById('resetHtml').addEventListener('click', () => this.resetHtmlPractice());
-        document.getElementById('newSnippet').addEventListener('click', () => this.loadNewSnippet());
-        document.getElementById('htmlInput').addEventListener('input', (e) => this.handleHtmlTyping(e));
-        
+        const startHtml = document.getElementById('startHtml');
+        if (startHtml) startHtml.addEventListener('click', () => this.startHtmlPractice());
+        const resetHtml = document.getElementById('resetHtml');
+        if (resetHtml) resetHtml.addEventListener('click', () => this.resetHtmlPractice());
+        const htmlInput = document.getElementById('htmlInput');
+        if (htmlInput) {
+            htmlInput.addEventListener('input', (e) => this.handleHtmlTyping(e));
+            htmlInput.addEventListener('keydown', (e) => {
+                if (!this.isHtmlTyping && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    e.preventDefault();
+                }
+                if (this.disableBackspaceHtml && e.key === 'Backspace') {
+                    e.preventDefault();
+                }
+            });
+        }
+        const newSnippet = document.getElementById('newSnippet');
+        if (newSnippet) newSnippet.addEventListener('click', () => this.loadNewSnippet());
+        const toggleBackspaceHtml = document.getElementById('toggleBackspaceHtml');
+        if (toggleBackspaceHtml) toggleBackspaceHtml.addEventListener('click', () => this.toggleBackspaceHtml());
+
         // Word Race
-        document.getElementById('startRace').addEventListener('click', () => this.startWordRace());
-        document.getElementById('resetRace').addEventListener('click', () => this.resetWordRace());
-        document.getElementById('raceInput').addEventListener('keypress', (e) => this.handleRaceInput(e));
-        
+        const startRace = document.getElementById('startRace');
+        if (startRace) startRace.addEventListener('click', () => this.startWordRace());
+        const resetRace = document.getElementById('resetRace');
+        if (resetRace) resetRace.addEventListener('click', () => this.resetWordRace());
+        const raceInput = document.getElementById('raceInput');
+        if (raceInput) raceInput.addEventListener('keydown', (e) => this.handleRaceInput(e));
+
         // Typing Shooter
-        document.getElementById('startShooter').addEventListener('click', () => this.startTypingShooter());
-        document.getElementById('resetShooter').addEventListener('click', () => this.resetTypingShooter());
-        document.getElementById('shooterInput').addEventListener('keypress', (e) => this.handleShooterInput(e));
-        
+        const startShooter = document.getElementById('startShooter');
+        if (startShooter) startShooter.addEventListener('click', () => this.startTypingShooter());
+        const resetShooter = document.getElementById('resetShooter');
+        if (resetShooter) resetShooter.addEventListener('click', () => this.resetTypingShooter());
+        const shooterInput = document.getElementById('shooterInput');
+        if (shooterInput) shooterInput.addEventListener('keydown', (e) => this.handleShooterInput(e));
+
         // Content Manager
-        document.getElementById('saveTypingTexts').addEventListener('click', () => this.saveTypingTexts());
-        document.getElementById('saveHtmlSnippets').addEventListener('click', () => this.saveHtmlSnippets());
+        const saveTypingTexts = document.getElementById('saveTypingTexts');
+        if (saveTypingTexts) saveTypingTexts.addEventListener('click', () => this.saveTypingTexts());
+        const saveHtmlSnippets = document.getElementById('saveHtmlSnippets');
+        if (saveHtmlSnippets) saveHtmlSnippets.addEventListener('click', () => this.saveHtmlSnippets());
     }
     
     showTab(tabName) {
@@ -137,6 +188,10 @@ class TypingTestApp {
             
             this.loadNewText();
             this.loadNewSnippet();
+
+            // Ensure progress tracker is shown on load
+            this.highlightText('');
+            this.highlightHtmlText('');
         } catch (error) {
             console.error('Error loading data:', error);
             // Fallback data
@@ -152,6 +207,10 @@ class TypingTestApp {
             ];
             this.loadNewText();
             this.loadNewSnippet();
+
+            // Ensure progress tracker is shown on load (fallback)
+            this.highlightText('');
+            this.highlightHtmlText('');
         }
     }
     
@@ -160,6 +219,8 @@ class TypingTestApp {
         if (this.typingTexts.length > 0) {
             this.currentText = this.typingTexts[Math.floor(Math.random() * this.typingTexts.length)];
             document.getElementById('textDisplay').textContent = this.currentText;
+            // Show progress tracker immediately
+            this.highlightText(document.getElementById('typingInput').value || '');
         }
     }
     
@@ -172,6 +233,7 @@ class TypingTestApp {
         const input = document.getElementById('typingInput');
         input.value = '';
         input.disabled = false;
+        input.classList.remove('hide-caret'); // Show caret
         input.focus();
         
         document.getElementById('startTest').disabled = true;
@@ -186,8 +248,10 @@ class TypingTestApp {
         this.isTyping = false;
         clearInterval(this.timer);
         
-        document.getElementById('typingInput').value = '';
-        document.getElementById('typingInput').disabled = false;
+        const input = document.getElementById('typingInput');
+        input.value = '';
+        input.disabled = false;
+        input.classList.add('hide-caret'); // Hide caret
         document.getElementById('startTest').disabled = false;
         document.getElementById('timer').textContent = '0s';
         document.getElementById('wpm').textContent = '0';
@@ -199,26 +263,31 @@ class TypingTestApp {
     
     handleTyping(e) {
         if (!this.isTyping) return;
-        
+
         const input = e.target.value;
         this.totalCharacters = input.length;
         this.correctCharacters = 0;
-        
+
         for (let i = 0; i < input.length; i++) {
             if (i < this.currentText.length && input[i] === this.currentText[i]) {
                 this.correctCharacters++;
             }
         }
-        
+
         this.updateStats();
         this.highlightText(input);
-        
-        // Check if completed
-        if (input === this.currentText) {
-            this.completeTypingTest();
+
+        // If backspace is disabled, end test when input length matches or exceeds target length
+        if (this.disableBackspace && input.length >= this.currentText.length) {
+            // Prevent further typing
+            e.target.value = input.slice(0, this.currentText.length);
+            this.isTyping = false;
+            this.completeTypingTest(true);
+        } else if (!this.disableBackspace && input === this.currentText) {
+            this.completeTypingTest(false);
         }
     }
-    
+
     highlightText(input) {
         const display = document.getElementById('textDisplay');
         let html = '';
@@ -252,23 +321,112 @@ class TypingTestApp {
         document.getElementById('accuracy').textContent = `${accuracy}%`;
     }
     
-    completeTypingTest() {
+    completeTypingTest(forceEndWithErrors = false) {
         this.isTyping = false;
         clearInterval(this.timer);
         document.getElementById('typingInput').disabled = true;
         document.getElementById('startTest').disabled = false;
-        
-        // Show completion message
-        setTimeout(() => {
-            alert('🎉 Congratulations! You completed the typing test!');
-        }, 100);
+
+        // Calculate final WPM
+        const elapsed = (Date.now() - this.startTime) / 1000;
+        const minutes = elapsed / 60;
+        const wpm = Math.round((this.correctCharacters / 5) / minutes) || 0;
+
+        // Check for new high score
+        if (!forceEndWithErrors && wpm > this.bestWpm) {
+            this.bestWpm = wpm;
+            localStorage.setItem('typing-test-best-wpm', wpm);
+            this.showConfetti();
+            setTimeout(() => {
+                alert(`🎉 You beat your high score! Your new high score is: ${wpm} WPM`);
+            }, 100);
+        } else if (!forceEndWithErrors) {
+            setTimeout(() => {
+                alert('🎉 Congratulations! You completed the typing test!');
+            }, 100);
+        } else {
+            setTimeout(() => {
+                alert('⚠️ Test ended. There are typing errors (backspace was disabled).');
+            }, 100);
+        }
+    }
+
+    showConfetti() {
+        // Create a canvas overlay for confetti
+        if (!this.confettiCanvas) {
+            this.confettiCanvas = document.createElement('canvas');
+            this.confettiCanvas.style.position = 'fixed';
+            this.confettiCanvas.style.left = 0;
+            this.confettiCanvas.style.top = 0;
+            this.confettiCanvas.style.width = '100vw';
+            this.confettiCanvas.style.height = '100vh';
+            this.confettiCanvas.style.pointerEvents = 'none';
+            this.confettiCanvas.style.zIndex = 9999;
+            document.body.appendChild(this.confettiCanvas);
+        }
+        const canvas = this.confettiCanvas;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+
+        // Confetti particles
+        const confettiCount = 120;
+        const confetti = [];
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8be9fd', '#ffb86c', '#50fa7b', '#f1fa8c'];
+        for (let i = 0; i < confettiCount; i++) {
+            confetti.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * -canvas.height,
+                r: Math.random() * 6 + 4,
+                d: Math.random() * confettiCount,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                tilt: Math.random() * 10 - 10,
+                tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+                tiltAngle: 0
+            });
+        }
+
+        let angle = 0;
+        let tiltAngle = 0;
+        let frame = 0;
+        function drawConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            angle += 0.01;
+            tiltAngle += 0.1;
+            for (let i = 0; i < confettiCount; i++) {
+                let c = confetti[i];
+                c.tiltAngle += c.tiltAngleIncremental;
+                c.y += (Math.cos(angle + c.d) + 3 + c.r / 2) / 2;
+                c.x += Math.sin(angle);
+                c.tilt = Math.sin(c.tiltAngle - (i % 3)) * 15;
+
+                ctx.beginPath();
+                ctx.lineWidth = c.r;
+                ctx.strokeStyle = c.color;
+                ctx.moveTo(c.x + c.tilt + c.r / 3, c.y);
+                ctx.lineTo(c.x + c.tilt, c.y + c.tilt + 10);
+                ctx.stroke();
+            }
+            frame++;
+            if (frame < 90) {
+                requestAnimationFrame(drawConfetti);
+            } else {
+                canvas.parentNode && canvas.parentNode.removeChild(canvas);
+                this.confettiCanvas = null;
+            }
+        }
+        drawConfetti = drawConfetti.bind(this);
+        drawConfetti();
     }
     
     // HTML Practice Methods
     loadNewSnippet() {
         if (this.htmlSnippets.length > 0) {
             this.currentSnippet = this.htmlSnippets[Math.floor(Math.random() * this.htmlSnippets.length)];
+            // Always use textContent to prevent HTML rendering
             document.getElementById('htmlDisplay').textContent = this.currentSnippet;
+            // Show progress tracker immediately
+            this.highlightHtmlText(document.getElementById('htmlInput').value || '');
         }
     }
     
@@ -281,6 +439,7 @@ class TypingTestApp {
         const input = document.getElementById('htmlInput');
         input.value = '';
         input.disabled = false;
+        input.classList.remove('hide-caret'); // Show caret
         input.focus();
         
         document.getElementById('startHtml').disabled = true;
@@ -295,8 +454,10 @@ class TypingTestApp {
         this.isHtmlTyping = false;
         clearInterval(this.htmlTimer);
         
-        document.getElementById('htmlInput').value = '';
-        document.getElementById('htmlInput').disabled = false;
+        const input = document.getElementById('htmlInput');
+        input.value = '';
+        input.disabled = false;
+        input.classList.add('hide-caret'); // Hide caret
         document.getElementById('startHtml').disabled = false;
         document.getElementById('htmlTimer').textContent = '0s';
         document.getElementById('htmlWpm').textContent = '0';
@@ -331,24 +492,54 @@ class TypingTestApp {
     highlightHtmlText(input) {
         const display = document.getElementById('htmlDisplay');
         let html = '';
-        
         for (let i = 0; i < this.currentSnippet.length; i++) {
             const char = this.currentSnippet[i];
-            
+            const escapedChar = this.escapeHtmlChar(char);
+
+            let spanClass = '';
             if (i < input.length) {
-                if (input[i] === char) {
-                    html += `<span class="correct">${char}</span>`;
-                } else {
-                    html += `<span class="incorrect">${char}</span>`;
-                }
+                spanClass = input[i] === char ? 'correct' : 'incorrect';
             } else if (i === input.length) {
-                html += `<span class="current">${char}</span>`;
-            } else {
-                html += char;
+                spanClass = 'current';
             }
+
+            html += spanClass ? `<span class="${spanClass}">${escapedChar}</span>` : escapedChar;
         }
-        
-        display.innerHTML = html;
+        // Apply syntax highlighting after progress highlighting
+        display.innerHTML = this.applyHtmlSyntaxHighlighting(html);
+    }
+
+    applyHtmlSyntaxHighlighting(html) {
+        // This function expects already-escaped HTML with progress <span>s.
+        // We'll use regex to wrap HTML tags, attributes, and strings with extra <span> classes.
+        // Only highlight outside of progress <span> tags.
+        // This is a simple highlighter and may not cover all edge cases.
+
+        // Highlight tags: &lt;tag ...&gt;
+        html = html.replace(/(&lt;\/?)([a-zA-Z0-9\-]+)([\s\S]*?)(\/?&gt;)/g, (match, open, tag, rest, close) => {
+            // Highlight tag name
+            let result = `<span class="html-tag">${open}<span class="html-tag-name">${tag}</span>`;
+            // Highlight attributes and strings inside the tag
+            result += rest.replace(/([a-zA-Z\-:]+)(=)("[^"]*"|'[^']*')?/g, (m, attr, eq, val) => {
+                let attrStr = `<span class="html-attr">${attr}</span>${eq}`;
+                if (val) {
+                    attrStr += `<span class="html-string">${val}</span>`;
+                }
+                return attrStr;
+            });
+            result += `${close}</span>`;
+            return result;
+        });
+        return html;
+    }
+
+    escapeHtmlChar(char) {
+        if (char === '<') return '&lt;';
+        if (char === '>') return '&gt;';
+        if (char === '&') return '&amp;';
+        if (char === '"') return '&quot;';
+        if (char === "'") return '&#39;';
+        return char;
     }
     
     updateHtmlStats() {
@@ -402,21 +593,18 @@ class TypingTestApp {
     }
     
     handleRaceInput(e) {
-        if (!this.raceActive || e.key !== 'Enter') return;
-        
-        const input = e.target.value.trim();
-        
-        if (input === this.raceCurrentWord) {
-            this.raceWordsCompleted++;
-            this.raceScore += input.length * 10;
-            
-            document.getElementById('wordsCompleted').textContent = `${this.raceWordsCompleted}/∞`;
-            document.getElementById('raceScore').textContent = this.raceScore;
-            
-            this.nextRaceWord();
+        if (!this.raceActive) return;
+        if (e.key === 'Enter') {
+            const input = e.target.value.trim();
+            if (input === this.raceCurrentWord) {
+                this.raceWordsCompleted++;
+                this.raceScore += input.length * 10;
+                document.getElementById('wordsCompleted').textContent = `${this.raceWordsCompleted}/∞`;
+                document.getElementById('raceScore').textContent = this.raceScore;
+                this.nextRaceWord();
+            }
+            e.target.value = '';
         }
-        
-        e.target.value = '';
     }
     
     endWordRace() {
@@ -462,6 +650,8 @@ class TypingTestApp {
         const area = document.getElementById('shooterArea');
         area.innerHTML = '';
         
+        // Start the falling words interval
+        if (this.shooterTimer) clearInterval(this.shooterTimer);
         this.shooterTimer = setInterval(() => {
             this.spawnFallingWord();
             this.updateFallingWords();
@@ -514,26 +704,22 @@ class TypingTestApp {
     }
     
     handleShooterInput(e) {
-        if (!this.shooterActive || e.key !== 'Enter') return;
-        
-        const input = e.target.value.trim();
-        
-        // Find matching falling word
-        const matchIndex = this.fallingWords.findIndex(wordObj => wordObj.word === input);
-        
-        if (matchIndex !== -1) {
-            const wordObj = this.fallingWords[matchIndex];
-            wordObj.element.remove();
-            this.fallingWords.splice(matchIndex, 1);
-            
-            this.targetsHit++;
-            this.shooterScore += input.length * 20;
-            
-            document.getElementById('targetsHit').textContent = this.targetsHit;
-            document.getElementById('shooterScore').textContent = this.shooterScore;
+        if (!this.shooterActive) return;
+        if (e.key === 'Enter') {
+            const input = e.target.value.trim();
+            // Find matching falling word
+            const matchIndex = this.fallingWords.findIndex(wordObj => wordObj.word === input);
+            if (matchIndex !== -1) {
+                const wordObj = this.fallingWords[matchIndex];
+                wordObj.element.remove();
+                this.fallingWords.splice(matchIndex, 1);
+                this.targetsHit++;
+                this.shooterScore += input.length * 20;
+                document.getElementById('targetsHit').textContent = this.targetsHit;
+                document.getElementById('shooterScore').textContent = this.shooterScore;
+            }
+            e.target.value = '';
         }
-        
-        e.target.value = '';
     }
     
     endTypingShooter() {
@@ -554,7 +740,7 @@ class TypingTestApp {
     
     resetTypingShooter() {
         this.shooterActive = false;
-        clearInterval(this.shooterTimer);
+        if (this.shooterTimer) clearInterval(this.shooterTimer);
         
         // Remove all falling words
         this.fallingWords.forEach(wordObj => wordObj.element.remove());
@@ -648,6 +834,18 @@ class TypingTestApp {
             statusElement.textContent = '';
             statusElement.className = 'status-message';
         }, 5000);
+    }
+
+    toggleBackspace() {
+        this.disableBackspace = !this.disableBackspace;
+        const btn = document.getElementById('toggleBackspace');
+        btn.textContent = this.disableBackspace ? '✅ Backspace Disabled' : '⛔ Disable Backspace';
+    }
+
+    toggleBackspaceHtml() {
+        this.disableBackspaceHtml = !this.disableBackspaceHtml;
+        const btn = document.getElementById('toggleBackspaceHtml');
+        btn.textContent = this.disableBackspaceHtml ? '✅ Backspace Disabled' : '⛔ Disable Backspace';
     }
 }
 
