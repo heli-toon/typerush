@@ -52,7 +52,7 @@ python app.py
 ## 📱 Usage
 
 ### Getting Started
-1. **Choose Your Theme**: Select from 4 beautiful themes in the top-right corner
+1. **Choose Your Theme**: Select from 3 beautiful themes in the top-right corner
 2. **Pick a Mode**: Use the navigation tabs to switch between different typing modes
 3. **Start Typing**: Click "Start Test" and begin typing!
 
@@ -99,7 +99,8 @@ This app is designed to work with PyInstaller for standalone distribution:
 python -m pip install pyinstaller
 
 # Create executable (run from project directory)
-pyinstaller --onedir --windowed --add-data "templates:templates" --add-data "static:static" app.py
+pyinstaller --onefile --windowed --add-data "templates;templates" --add-data "static;static" --icon "logo.ico" app.py
+
 ```
 
 ## 🛠️ Technical Details
@@ -114,7 +115,7 @@ pyinstaller --onedir --windowed --add-data "templates:templates" --add-data "sta
 - **Vanilla JavaScript**: No heavy frameworks, just clean JS
 - **CSS3**: Modern styling with animations and transitions
 - **Responsive Design**: Mobile-first approach
-- **Local Storage**: Theme preferences saved locally
+- **Local Storage**: Theme preferences and scores saved locally
 
 ### Project Structure
 ```
