@@ -41,8 +41,23 @@ class TypingTestApp {
         this.targetsHit = 0;
         this.lives = 3;
         this.shooterTimer = null;
+
+        this.testsCompleted = parseInt(localStorage.getItem('typerush-tests-completed') || '0', 10);
+        this.funFacts = [
+            "The fastest typist ever recorded reached 216 words per minute.",
+            "The word 'typewriter' can be typed using only the top row of a QWERTY keyboard.",
+            "The first computer mouse was made of wood.",
+            "HTML stands for HyperText Markup Language.",
+            "The Dvorak keyboard layout was designed to increase typing speed.",
+            "The longest English word without a true vowel is 'rhythms'.",
+            "The first email was sent in 1971 by Ray Tomlinson.",
+            "The average person types at about 40 words per minute.",
+            "The QWERTY layout was designed to prevent typewriter jams.",
+            "The first website is still online at info.cern.ch."
+        ];
         
         this.init();
+        this.loadHighScores();
     }
     
     init() {
@@ -171,6 +186,10 @@ class TypingTestApp {
         if (tabName === 'content-manager') {
             this.loadContentManager();
         }
+        // Update stats tab
+        if (tabName === 'stats') {
+            this.updateStatsTab();
+        }
     }
     
     async loadData() {
@@ -264,7 +283,13 @@ class TypingTestApp {
     handleTyping(e) {
         if (!this.isTyping) return;
 
-        const input = e.target.value;
+        let input = e.target.value;
+        // Prevent typing more characters than the target text
+        if (input.length > this.currentText.length) {
+            input = input.slice(0, this.currentText.length);
+            e.target.value = input;
+        }
+
         this.totalCharacters = input.length;
         this.correctCharacters = 0;
 
@@ -277,14 +302,12 @@ class TypingTestApp {
         this.updateStats();
         this.highlightText(input);
 
-        // If backspace is disabled, end test when input length matches or exceeds target length
-        if (this.disableBackspace && input.length >= this.currentText.length) {
-            // Prevent further typing
-            e.target.value = input.slice(0, this.currentText.length);
+        // End test as soon as input length matches target length
+        if (input.length === this.currentText.length) {
             this.isTyping = false;
-            this.completeTypingTest(true);
-        } else if (!this.disableBackspace && input === this.currentText) {
-            this.completeTypingTest(false);
+            // If the input is not exactly correct, show error message
+            const hasErrors = input !== this.currentText;
+            this.completeTypingTest(hasErrors);
         }
     }
 
@@ -331,6 +354,12 @@ class TypingTestApp {
         const elapsed = (Date.now() - this.startTime) / 1000;
         const minutes = elapsed / 60;
         const wpm = Math.round((this.correctCharacters / 5) / minutes) || 0;
+
+        // Always reload high score from localStorage
+        this.bestWpm = parseInt(localStorage.getItem('typing-test-best-wpm') || '0', 10);
+
+        // Increment tests completed
+        this.incrementTestsCompleted();
 
         // Check for new high score
         if (!forceEndWithErrors && wpm > this.bestWpm) {
@@ -469,26 +498,34 @@ class TypingTestApp {
     
     handleHtmlTyping(e) {
         if (!this.isHtmlTyping) return;
-        
-        const input = e.target.value;
+
+        let input = e.target.value;
+        // Prevent typing more characters than the snippet
+        if (input.length > this.currentSnippet.length) {
+            input = input.slice(0, this.currentSnippet.length);
+            e.target.value = input;
+        }
+
         this.htmlTotalCharacters = input.length;
         this.htmlCorrectCharacters = 0;
-        
+
         for (let i = 0; i < input.length; i++) {
             if (i < this.currentSnippet.length && input[i] === this.currentSnippet[i]) {
                 this.htmlCorrectCharacters++;
             }
         }
-        
+
         this.updateHtmlStats();
         this.highlightHtmlText(input);
-        
-        // Check if completed
-        if (input === this.currentSnippet) {
-            this.completeHtmlPractice();
+
+        // End practice as soon as input length matches snippet length
+        if (input.length === this.currentSnippet.length) {
+            this.isHtmlTyping = false;
+            const hasErrors = input !== this.currentSnippet;
+            this.completeHtmlPractice(hasErrors);
         }
     }
-    
+
     highlightHtmlText(input) {
         const display = document.getElementById('htmlDisplay');
         let html = '';
@@ -552,14 +589,21 @@ class TypingTestApp {
         document.getElementById('htmlAccuracy').textContent = `${accuracy}%`;
     }
     
-    completeHtmlPractice() {
+    completeHtmlPractice(forceEndWithErrors = false) {
         this.isHtmlTyping = false;
         clearInterval(this.htmlTimer);
         document.getElementById('htmlInput').disabled = true;
         document.getElementById('startHtml').disabled = false;
-        
+
+        // Increment tests completed
+        this.incrementTestsCompleted();
+
         setTimeout(() => {
-            alert('🎉 Great job! HTML snippet completed!');
+            if (!forceEndWithErrors) {
+                alert('🎉 Great job! HTML snippet completed!');
+            } else {
+                alert('⚠️ Practice ended. There are typing errors.');
+            }
         }, 100);
     }
     
@@ -612,10 +656,25 @@ class TypingTestApp {
         clearInterval(this.raceTimer);
         document.getElementById('raceInput').disabled = true;
         document.getElementById('startRace').disabled = false;
-        
-        setTimeout(() => {
-            alert(`🏁 Race finished! You typed ${this.raceWordsCompleted} words and scored ${this.raceScore} points!`);
-        }, 100);
+
+        // Always reload high score from localStorage
+        this.bestRaceScore = parseInt(localStorage.getItem('word-race-best-score') || '0', 10);
+
+        // Increment tests completed
+        this.incrementTestsCompleted();
+
+        if (this.raceScore > this.bestRaceScore) {
+            this.bestRaceScore = this.raceScore;
+            localStorage.setItem('word-race-best-score', this.raceScore);
+            this.showConfetti();
+            setTimeout(() => {
+                alert(`🎉 You beat your Word Race high score! Your new high score is: ${this.raceScore}`);
+            }, 100);
+        } else {
+            setTimeout(() => {
+                alert(`🏁 Race finished! You typed ${this.raceWordsCompleted} words and scored ${this.raceScore} points!`);
+            }, 100);
+        }
     }
     
     resetWordRace() {
@@ -732,10 +791,25 @@ class TypingTestApp {
         
         document.getElementById('shooterInput').disabled = true;
         document.getElementById('startShooter').disabled = false;
-        
-        setTimeout(() => {
-            alert(`🎯 Game Over! You hit ${this.targetsHit} targets and scored ${this.shooterScore} points!`);
-        }, 100);
+
+        // Always reload high score from localStorage
+        this.bestShooterScore = parseInt(localStorage.getItem('typing-shooter-best-score') || '0', 10);
+
+        // Increment tests completed
+        this.incrementTestsCompleted();
+
+        if (this.shooterScore > this.bestShooterScore) {
+            this.bestShooterScore = this.shooterScore;
+            localStorage.setItem('typing-shooter-best-score', this.shooterScore);
+            this.showConfetti();
+            setTimeout(() => {
+                alert(`🎉 You beat your Typing Shooter high score! Your new high score is: ${this.shooterScore}`);
+            }, 100);
+        } else {
+            setTimeout(() => {
+                alert(`🎯 Game Over! You hit ${this.targetsHit} targets and scored ${this.shooterScore} points!`);
+            }, 100);
+        }
     }
     
     resetTypingShooter() {
@@ -846,6 +920,35 @@ class TypingTestApp {
         this.disableBackspaceHtml = !this.disableBackspaceHtml;
         const btn = document.getElementById('toggleBackspaceHtml');
         btn.textContent = this.disableBackspaceHtml ? '✅ Backspace Disabled' : '⛔ Disable Backspace';
+    }
+
+    loadHighScores() {
+        this.bestWpm = parseInt(localStorage.getItem('typing-test-best-wpm') || '0', 10);
+        this.bestRaceScore = parseInt(localStorage.getItem('word-race-best-score') || '0', 10);
+        this.bestShooterScore = parseInt(localStorage.getItem('typing-shooter-best-score') || '0', 10);
+    }
+
+    incrementTestsCompleted() {
+        this.testsCompleted = parseInt(localStorage.getItem('typerush-tests-completed') || '0', 10) + 1;
+        localStorage.setItem('typerush-tests-completed', this.testsCompleted);
+    }
+
+    updateStatsTab() {
+        // High scores
+        document.getElementById('statsBestWpm').textContent = localStorage.getItem('typing-test-best-wpm') || '0';
+        document.getElementById('statsBestRace').textContent = localStorage.getItem('word-race-best-score') || '0';
+        document.getElementById('statsBestShooter').textContent = localStorage.getItem('typing-shooter-best-score') || '0';
+        // Theme
+        const theme = localStorage.getItem('typing-test-theme') || 'dark';
+        let themeLabel = 'Dark';
+        if (theme === 'blue') themeLabel = 'Blue';
+        if (theme === 'light') themeLabel = 'Light';
+        document.getElementById('statsTheme').textContent = themeLabel;
+        // Tests completed
+        document.getElementById('statsTestsCompleted').textContent = localStorage.getItem('typerush-tests-completed') || '0';
+        // Fun fact
+        const fact = this.funFacts[Math.floor(Math.random() * this.funFacts.length)];
+        document.getElementById('funFact').textContent = `💡 Fun Fact: ${fact}`;
     }
 }
 

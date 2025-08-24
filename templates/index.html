@@ -17,7 +17,6 @@
                     <span class="theme-label">🎨 Theme:</span>
                     <select id="themeSelect" class="theme-select" title="Select Theme">
                         <option value="dark">🌙 Dark</option>
-                        <option value="purple">💜 Purple Gradient</option>
                         <option value="blue">💙 Blue</option>
                         <option value="light">☀️ Light</option>
                     </select>
@@ -31,6 +30,7 @@
             <button class="nav-tab" data-tab="html-practice">💻 HTML Practice</button>
             <button class="nav-tab" data-tab="word-race">🏃 Word Race</button>
             <button class="nav-tab" data-tab="typing-shooter">🎯 Typing Shooter</button>
+            <button class="nav-tab" data-tab="stats">📊 Stats</button>
             <button class="nav-tab" data-tab="content-manager">⚙️ Manage Content</button>
         </nav>
 
@@ -55,7 +55,7 @@
                 
                 <div class="typing-area">
                     <div class="text-display" id="textDisplay"></div>
-                    <textarea class="typing-input" id="typingInput" placeholder="Start typing here..."></textarea>
+                    <textarea class="typing-input" id="typingInput" placeholder="Start typing here..." autocomplete="off"></textarea>
                 </div>
                 
                 <div class="controls">
@@ -84,7 +84,7 @@
                 
                 <div class="typing-area">
                     <div class="code-display" id="htmlDisplay"></div>
-                    <textarea class="typing-input code-input" id="htmlInput" placeholder="Type the HTML code here..."></textarea>
+                    <textarea class="typing-input code-input" id="htmlInput" placeholder="Type the HTML code here..." autocomplete="off"></textarea>
                 </div>
                 
                 <div class="controls">
@@ -113,7 +113,7 @@
                 
                 <div class="race-area">
                     <div class="race-word" id="raceWord">Click Start to begin!</div>
-                    <input type="text" class="race-input" id="raceInput" placeholder="Type the word and press Enter">
+                    <input type="text" class="race-input" id="raceInput" placeholder="Type the word and press Enter" autocomplete="off">
                 </div>
                 
                 <div class="controls">
@@ -143,7 +143,7 @@
                     <div class="shooter-instruction">Type the falling words to shoot them! 🚀</div>
                 </div>
                 
-                <input type="text" class="shooter-input" id="shooterInput" placeholder="Type falling words here">
+                <input type="text" class="shooter-input" id="shooterInput" placeholder="Type falling words here" autocomplete="off">
                 
                 <div class="controls">
                     <button class="btn btn-primary" id="startShooter">🎮 Start Game</button>
@@ -151,17 +151,48 @@
                 </div>
             </div>
 
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content">
+                <h2 style="margin-bottom: 1.5em;">📊 Stats & Info</h2>
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">🏆 Typing Test High Score</span>
+                        <span class="stat-value" id="statsBestWpm">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🏁 Word Race High Score</span>
+                        <span class="stat-value" id="statsBestRace">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🎯 Shooter High Score</span>
+                        <span class="stat-value" id="statsBestShooter">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🧮 Tests Completed</span>
+                        <span class="stat-value" id="statsTestsCompleted">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🎨 Theme</span>
+                        <span class="stat-value" id="statsTheme">-</span>
+                    </div>
+                </div>
+                <div class="fun-fact" id="funFact" style="margin-top:2em;font-size:1.1em;text-align:center;"></div>
+                <div class="credits" style="margin-top:2em;text-align:center;color:var(--text-secondary);font-size:0.95em;">
+                    Made with ❤️ by <a href="https://muhaiminsalayk.netlify.app" target="_blank" rel="noopener" style="color:var(--primary-color);text-decoration:underline;">SALAY</a>
+                </div>
+            </div>
+
             <!-- Content Manager Tab -->
             <div id="content-manager" class="tab-content">
                 <div class="content-section">
                     <h3>📝 Typing Test Texts</h3>
-                    <textarea id="typingTextsEditor" class="content-editor" placeholder="Enter typing test texts (one per line)"></textarea>
+                    <textarea id="typingTextsEditor" class="content-editor" placeholder="Enter typing test texts (one per line)" autocomplete="off"></textarea>
                     <button class="btn btn-primary" id="saveTypingTexts">💾 Save Texts</button>
                 </div>
                 
                 <div class="content-section">
                     <h3>💻 HTML Snippets</h3>
-                    <textarea id="htmlSnippetsEditor" class="content-editor" placeholder="Enter HTML snippets (one per line)"></textarea>
+                    <textarea id="htmlSnippetsEditor" class="content-editor" placeholder="Enter HTML snippets (one per line)" autocomplete="off"></textarea>
                     <button class="btn btn-primary" id="saveHtmlSnippets">💾 Save Snippets</button>
                 </div>
                 

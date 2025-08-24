@@ -14,10 +14,11 @@ A beautiful, interactive typing test application with multiple modes, games, and
 - **Typing Shooter**: Shoot falling words by typing them correctly
 
 ### 🎨 Customization
-- **4 Beautiful Themes**: Dark, Purple Gradient, Blue, and Light
+- **4 Beautiful Themes**: Dark, Blue, and Light
 - **Theme Persistence**: Your theme choice is saved automatically
 - **Responsive Design**: Works perfectly on all devices
-
+### 📊 Stats
+- **List of relevant stats**
 ### ⚙️ Content Management
 - **Dynamic Content**: Add/edit typing texts and HTML snippets from the UI
 - **No File Editing**: Update content directly in the browser
@@ -86,7 +87,6 @@ python app.py
 ## 🎨 Themes
 
 - **🌙 Dark**: Classic dark theme for comfortable typing
-- **💜 Purple Gradient**: Beautiful gradient background
 - **💙 Blue**: Cool blue theme for focus
 - **☀️ Light**: Clean light theme for day use
 

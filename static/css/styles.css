@@ -27,20 +27,6 @@
     --error-color: #dc2626;
 }
 
-.theme-purple {
-    --primary-color: #8b5cf6;
-    --secondary-color: #a78bfa;
-    --accent-color: #06d6a0;
-    --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --bg-secondary: rgba(139, 92, 246, 0.1);
-    --text-primary: #ffffff;
-    --text-secondary: #e5e7eb;
-    --border-color: #8b5cf6;
-    --success-color: #06d6a0;
-    --warning-color: #ffd23f;
-    --error-color: #ff6b6b;
-}
-
 .theme-blue {
     --primary-color: #0ea5e9;
     --secondary-color: #0284c7;
