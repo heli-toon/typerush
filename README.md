@@ -27,27 +27,27 @@ A beautiful, interactive typing test application with multiple modes, games, and
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.7 or higher
-- Flask
+- Python 3.8 or higher
 
 ### Installation & Running
 
-1. **Clone or download this project**
+1. **Clone or navigate to the project directory**
 
-2. **Install Flask** (if not already installed):
+2. **Install Dependencies**:
 ```bash
-python -m pip install flask
+pip install -r requirements.txt
 ```
 
-3. **Run the application**:
+3. **Run the Application**:
 ```bash
 python app.py
 ```
 
-4. **Automatic Launch**: The app will automatically:
-   - Find an available port (starting from 5000)
-   - Launch in your default browser
-   - Display the URL in the terminal
+* **Native Desktop Window (Default)**: Automatically launches TypeRush in a clean, self-contained desktop application window (powered by `pywebview`) without opening your browser.
+* **Browser Mode**: If you ever want to run it in a regular browser tab, simply pass the flag:
+```bash
+python app.py --browser
+```
 
 ## 📱 Usage
 

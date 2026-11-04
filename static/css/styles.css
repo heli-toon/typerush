@@ -317,6 +317,11 @@ body {
     transition: transform 0.2s ease;
 }
 
+.nav-tab > *,
+.btn > * {
+    pointer-events: none;
+}
+
 .nav-tab:hover {
     color: var(--text-primary);
     background: var(--bg-elevated);

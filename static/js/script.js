@@ -1,3 +1,25 @@
+// Safe storage wrapper ensuring functionality even when localStorage is restricted or throws
+const SafeStorage = {
+    _mem: {},
+    getItem(key) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                const val = window.localStorage.getItem(key);
+                if (val !== null) return val;
+            }
+        } catch (e) {}
+        return this._mem[key] !== undefined ? this._mem[key] : null;
+    },
+    setItem(key, value) {
+        this._mem[key] = String(value);
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                window.localStorage.setItem(key, String(value));
+            }
+        } catch (e) {}
+    }
+};
+
 class TypingTestApp {
     constructor() {
         this.currentTab = 'typing-test';
@@ -12,7 +34,7 @@ class TypingTestApp {
         this.timer = null;
         this.totalCharacters = 0;
         this.correctCharacters = 0;
-        this.bestWpm = parseInt(localStorage.getItem('typing-test-best-wpm') || '0', 10);
+        this.bestWpm = parseInt(SafeStorage.getItem('typing-test-best-wpm') || '0', 10);
         this.confettiCanvas = null;
         this.disableBackspace = false;
         
@@ -42,7 +64,7 @@ class TypingTestApp {
         this.lives = 3;
         this.shooterTimer = null;
 
-        this.testsCompleted = parseInt(localStorage.getItem('typerush-tests-completed') || '0', 10);
+        this.testsCompleted = parseInt(SafeStorage.getItem('typerush-tests-completed') || '0', 10);
         this.funFacts = [
             "The fastest typist ever recorded reached 216 words per minute.",
             "The word 'typewriter' can be typed using only the top row of a QWERTY keyboard.",
@@ -67,23 +89,28 @@ class TypingTestApp {
         this.showTab(this.currentTab);
 
         // Hide caret initially
-        document.getElementById('typingInput').classList.add('hide-caret');
-        document.getElementById('htmlInput').classList.add('hide-caret');
+        const typingInput = document.getElementById('typingInput');
+        const htmlInput = document.getElementById('htmlInput');
+        if (typingInput) typingInput.classList.add('hide-caret');
+        if (htmlInput) htmlInput.classList.add('hide-caret');
 
         // Disable text selection for display areas
-        document.getElementById('textDisplay').classList.add('no-select');
-        document.getElementById('htmlDisplay').classList.add('no-select');
+        const textDisplay = document.getElementById('textDisplay');
+        const htmlDisplay = document.getElementById('htmlDisplay');
+        if (textDisplay) textDisplay.classList.add('no-select');
+        if (htmlDisplay) htmlDisplay.classList.add('no-select');
     }
     
     loadTheme() {
-        const savedTheme = localStorage.getItem('typing-test-theme') || 'dark';
-        document.getElementById('themeSelect').value = savedTheme;
+        const savedTheme = SafeStorage.getItem('typing-test-theme') || 'dark';
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) themeSelect.value = savedTheme;
         this.applyTheme(savedTheme);
     }
     
     applyTheme(theme) {
         document.body.className = `theme-${theme}`;
-        localStorage.setItem('typing-test-theme', theme);
+        SafeStorage.setItem('typing-test-theme', theme);
     }
     
     bindEvents() {
@@ -94,7 +121,10 @@ class TypingTestApp {
         // Navigation tabs
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
-                this.showTab(e.target.dataset.tab);
+                const navBtn = e.target.closest('.nav-tab') || tab;
+                if (navBtn && navBtn.dataset.tab) {
+                    this.showTab(navBtn.dataset.tab);
+                }
             });
         });
 
@@ -166,6 +196,11 @@ class TypingTestApp {
     }
     
     showTab(tabName) {
+        if (!tabName) return;
+        const targetContent = document.getElementById(tabName);
+        const targetNavTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (!targetContent) return;
+
         // Hide all tabs
         document.querySelectorAll('.tab-content').forEach(tab => {
             tab.classList.remove('active');
@@ -177,8 +212,10 @@ class TypingTestApp {
         });
         
         // Show selected tab
-        document.getElementById(tabName).classList.add('active');
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        targetContent.classList.add('active');
+        if (targetNavTab) {
+            targetNavTab.classList.add('active');
+        }
         
         this.currentTab = tabName;
         
@@ -355,8 +392,8 @@ class TypingTestApp {
         const minutes = elapsed / 60;
         const wpm = Math.round((this.correctCharacters / 5) / minutes) || 0;
 
-        // Always reload high score from localStorage
-        this.bestWpm = parseInt(localStorage.getItem('typing-test-best-wpm') || '0', 10);
+        // Always reload high score from SafeStorage
+        this.bestWpm = parseInt(SafeStorage.getItem('typing-test-best-wpm') || '0', 10);
 
         // Increment tests completed
         this.incrementTestsCompleted();
@@ -364,7 +401,7 @@ class TypingTestApp {
         // Check for new high score
         if (!forceEndWithErrors && wpm > this.bestWpm) {
             this.bestWpm = wpm;
-            localStorage.setItem('typing-test-best-wpm', wpm);
+            SafeStorage.setItem('typing-test-best-wpm', wpm);
             this.showConfetti();
             setTimeout(() => {
                 alert(`🎉 You beat your high score! Your new high score is: ${wpm} WPM`);
@@ -657,15 +694,15 @@ class TypingTestApp {
         document.getElementById('raceInput').disabled = true;
         document.getElementById('startRace').disabled = false;
 
-        // Always reload high score from localStorage
-        this.bestRaceScore = parseInt(localStorage.getItem('word-race-best-score') || '0', 10);
+        // Always reload high score from SafeStorage
+        this.bestRaceScore = parseInt(SafeStorage.getItem('word-race-best-score') || '0', 10);
 
         // Increment tests completed
         this.incrementTestsCompleted();
 
         if (this.raceScore > this.bestRaceScore) {
             this.bestRaceScore = this.raceScore;
-            localStorage.setItem('word-race-best-score', this.raceScore);
+            SafeStorage.setItem('word-race-best-score', this.raceScore);
             this.showConfetti();
             setTimeout(() => {
                 alert(`🎉 You beat your Word Race high score! Your new high score is: ${this.raceScore}`);
@@ -792,15 +829,15 @@ class TypingTestApp {
         document.getElementById('shooterInput').disabled = true;
         document.getElementById('startShooter').disabled = false;
 
-        // Always reload high score from localStorage
-        this.bestShooterScore = parseInt(localStorage.getItem('typing-shooter-best-score') || '0', 10);
+        // Always reload high score from SafeStorage
+        this.bestShooterScore = parseInt(SafeStorage.getItem('typing-shooter-best-score') || '0', 10);
 
         // Increment tests completed
         this.incrementTestsCompleted();
 
         if (this.shooterScore > this.bestShooterScore) {
             this.bestShooterScore = this.shooterScore;
-            localStorage.setItem('typing-shooter-best-score', this.shooterScore);
+            SafeStorage.setItem('typing-shooter-best-score', this.shooterScore);
             this.showConfetti();
             setTimeout(() => {
                 alert(`🎉 You beat your Typing Shooter high score! Your new high score is: ${this.shooterScore}`);
@@ -923,36 +960,61 @@ class TypingTestApp {
     }
 
     loadHighScores() {
-        this.bestWpm = parseInt(localStorage.getItem('typing-test-best-wpm') || '0', 10);
-        this.bestRaceScore = parseInt(localStorage.getItem('word-race-best-score') || '0', 10);
-        this.bestShooterScore = parseInt(localStorage.getItem('typing-shooter-best-score') || '0', 10);
+        this.bestWpm = parseInt(SafeStorage.getItem('typing-test-best-wpm') || '0', 10);
+        this.bestRaceScore = parseInt(SafeStorage.getItem('word-race-best-score') || '0', 10);
+        this.bestShooterScore = parseInt(SafeStorage.getItem('typing-shooter-best-score') || '0', 10);
     }
 
     incrementTestsCompleted() {
-        this.testsCompleted = parseInt(localStorage.getItem('typerush-tests-completed') || '0', 10) + 1;
-        localStorage.setItem('typerush-tests-completed', this.testsCompleted);
+        this.testsCompleted = parseInt(SafeStorage.getItem('typerush-tests-completed') || '0', 10) + 1;
+        SafeStorage.setItem('typerush-tests-completed', this.testsCompleted);
     }
 
     updateStatsTab() {
         // High scores
-        document.getElementById('statsBestWpm').textContent = localStorage.getItem('typing-test-best-wpm') || '0';
-        document.getElementById('statsBestRace').textContent = localStorage.getItem('word-race-best-score') || '0';
-        document.getElementById('statsBestShooter').textContent = localStorage.getItem('typing-shooter-best-score') || '0';
+        const statsBestWpm = document.getElementById('statsBestWpm');
+        const statsBestRace = document.getElementById('statsBestRace');
+        const statsBestShooter = document.getElementById('statsBestShooter');
+        const statsTheme = document.getElementById('statsTheme');
+        const statsTestsCompleted = document.getElementById('statsTestsCompleted');
+        const funFact = document.getElementById('funFact');
+
+        if (statsBestWpm) statsBestWpm.textContent = SafeStorage.getItem('typing-test-best-wpm') || '0';
+        if (statsBestRace) statsBestRace.textContent = SafeStorage.getItem('word-race-best-score') || '0';
+        if (statsBestShooter) statsBestShooter.textContent = SafeStorage.getItem('typing-shooter-best-score') || '0';
+        
         // Theme
-        const theme = localStorage.getItem('typing-test-theme') || 'dark';
-        let themeLabel = 'Dark';
-        if (theme === 'blue') themeLabel = 'Blue';
-        if (theme === 'light') themeLabel = 'Light';
-        document.getElementById('statsTheme').textContent = themeLabel;
+        const theme = SafeStorage.getItem('typing-test-theme') || 'dark';
+        let themeLabel = 'Obsidian Dark';
+        if (theme === 'blue') themeLabel = 'Cobalt Blue';
+        if (theme === 'light') themeLabel = 'Nordic Light';
+        if (statsTheme) statsTheme.textContent = themeLabel;
+
         // Tests completed
-        document.getElementById('statsTestsCompleted').textContent = localStorage.getItem('typerush-tests-completed') || '0';
+        if (statsTestsCompleted) statsTestsCompleted.textContent = SafeStorage.getItem('typerush-tests-completed') || '0';
+        
         // Fun fact
-        const fact = this.funFacts[Math.floor(Math.random() * this.funFacts.length)];
-        document.getElementById('funFact').textContent = `💡 Fun Fact: ${fact}`;
+        if (funFact && this.funFacts && this.funFacts.length > 0) {
+            const fact = this.funFacts[Math.floor(Math.random() * this.funFacts.length)];
+            funFact.textContent = `💡 Fun Fact: ${fact}`;
+        }
     }
 }
 
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new TypingTestApp();
-});
+// Initialize the app safely whether DOM is currently loading or already loaded
+function initTypeRushApp() {
+    try {
+        if (!window.typeRushApp) {
+            window.typeRushApp = new TypingTestApp();
+            console.log("⚡ TypeRush initialized successfully.");
+        }
+    } catch (e) {
+        console.error("TypeRush initialization error:", e);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTypeRushApp);
+} else {
+    initTypeRushApp();
+}
