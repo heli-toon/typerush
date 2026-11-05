@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TypeRush — Precision Typing & Code Trainer</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS & Favicon -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" href="images/logo.png" type="image/png" />
+
+    <!-- GameMonetize.com SDK Integration -->
+    <!-- Official Docs: https://github.com/MonetizeGame/GameMonetize.com-SDK -->
+    <script type="text/javascript">
+        window.SDK_OPTIONS = {
+            gameId: "YOUR_GAMEMONETIZE_GAME_ID", // Replace with your actual Game ID / hash from GameMonetize dashboard
+            onEvent: function (a) {
+                switch (a.name) {
+                    case "SDK_GAME_PAUSE":
+                        // Pause game logic and mute audio when ad is playing
+                        if (window.typerushApp && typeof window.typerushApp.pauseForAd === 'function') {
+                            window.typerushApp.pauseForAd();
+                        }
+                        break;
+                    case "SDK_GAME_START":
+                        // Advertisement complete: resume game logic and audio
+                        if (window.typerushApp && typeof window.typerushApp.resumeAfterAd === 'function') {
+                            window.typerushApp.resumeAfterAd();
+                        }
+                        break;
+                    case "SDK_READY":
+                        console.log("[GameMonetize] SDK is loaded and ready");
+                        break;
+                    case "SDK_ERROR":
+                        console.warn("[GameMonetize] SDK error encountered:", a);
+                        break;
+                }
+            }
+        };
+        (function (a, b, c) {
+            var d = a.getElementsByTagName(b)[0];
+            a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
+        })(document, "script", "gamemonetize-sdk");
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="brand">
+                    <div class="brand-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="3" ry="3"></rect>
+                            <line x1="6" y1="8" x2="6.01" y2="8"></line>
+                            <line x1="10" y1="8" x2="10.01" y2="8"></line>
+                            <line x1="14" y1="8" x2="14.01" y2="8"></line>
+                            <line x1="18" y1="8" x2="18.01" y2="8"></line>
+                            <line x1="6" y1="12" x2="6.01" y2="12"></line>
+                            <line x1="18" y1="12" x2="18.01" y2="12"></line>
+                            <line x1="7" y1="16" x2="17" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="logo">TypeRush</h1>
+                        <span class="brand-badge">PRO TRAINER</span>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <div class="theme-selector">
+                        <label for="themeSelect" class="theme-label">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                            <span>Theme</span>
+                        </label>
+                        <div class="select-wrapper">
+                            <select id="themeSelect" class="theme-select" title="Select Theme">
+                                <option value="dark">Obsidian Dark</option>
+                                <option value="blue">Cobalt Blue</option>
+                                <option value="light">Nordic Light</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs" role="tablist" aria-label="Mode Selection">
+            <button class="nav-tab active" data-tab="typing-test" role="tab" aria-selected="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                    <line x1="9" y1="20" x2="15" y2="20"></line>
+                    <line x1="12" y1="4" x2="12" y2="20"></line>
+                </svg>
+                <span>Typing Test</span>
+            </button>
+            <button class="nav-tab" data-tab="html-practice" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <span>HTML Practice</span>
+            </button>
+            <button class="nav-tab" data-tab="word-race" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                    <line x1="4" y1="22" x2="4" y2="15"></line>
+                </svg>
+                <span>Word Race</span>
+            </button>
+            <button class="nav-tab" data-tab="typing-shooter" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="22" y1="12" x2="18" y2="12"></line>
+                    <line x1="6" y1="12" x2="2" y2="12"></line>
+                    <line x1="12" y1="6" x2="12" y2="2"></line>
+                    <line x1="12" y1="22" x2="12" y2="18"></line>
+                </svg>
+                <span>Typing Shooter</span>
+            </button>
+            <button class="nav-tab" data-tab="stats" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span>Statistics</span>
+            </button>
+            <button class="nav-tab" data-tab="content-manager" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" y1="21" x2="4" y2="14"></line>
+                    <line x1="4" y1="10" x2="4" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12" y2="3"></line>
+                    <line x1="20" y1="21" x2="20" y2="16"></line>
+                    <line x1="20" y1="12" x2="20" y2="3"></line>
+                    <line x1="1" y1="14" x2="7" y2="14"></line>
+                    <line x1="9" y1="8" x2="15" y2="8"></line>
+                    <line x1="17" y1="16" x2="23" y2="16"></line>
+                </svg>
+                <span>Manage Content</span>
+            </button>
+        </nav>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Typing Test Tab -->
+            <div id="typing-test" class="tab-content active" role="tabpanel">
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">TIME</span>
+                        <span class="stat-value" id="timer">0s</span>
+                    </div>
+                    <div class="stat-item stat-highlight">
+                        <span class="stat-label">SPEED (WPM)</span>
+                        <span class="stat-value" id="wpm">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">ACCURACY</span>
+                        <span class="stat-value" id="accuracy">100%</span>
+                    </div>
+                </div>
+                
+                <div class="typing-stage">
+                    <div class="stage-header">
+                        <span class="stage-pill">Target Text</span>
+                        <span class="stage-hint">Click Start Test or press Tab to begin typing</span>
+                    </div>
+                    <div class="text-display" id="textDisplay" tabindex="0"></div>
+                    <div class="input-wrapper">
+                        <textarea class="typing-input" id="typingInput" placeholder="Start typing here..." autocomplete="off" spellcheck="false"></textarea>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startTest">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>Start Test</span>
+                    </button>
+                    <button class="btn btn-secondary" id="resetTest">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                    <button class="btn btn-secondary" id="newText">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 3 21 3 21 8"></polyline>
+                            <line x1="4" y1="20" x2="21" y2="3"></line>
+                            <polyline points="21 16 21 21 16 21"></polyline>
+                            <line x1="15" y1="15" x2="21" y2="21"></line>
+                            <line x1="4" y1="4" x2="9" y2="9"></line>
+                        </svg>
+                        <span>New Text</span>
+                    </button>
+                    <button class="btn btn-secondary" id="toggleBackspace">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                            <line x1="18" y1="9" x2="12" y2="15"></line>
+                            <line x1="12" y1="9" x2="18" y2="15"></line>
+                        </svg>
+                        <span>Disable Backspace</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HTML Practice Tab -->
+            <div id="html-practice" class="tab-content" role="tabpanel">
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <span class="stat-label">TIME</span>
+                        <span class="stat-value" id="htmlTimer">0s</span>
+                    </div>
+                    <div class="stat-item stat-highlight">
+                        <span class="stat-label">CODE WPM</span>
+                        <span class="stat-value" id="htmlWpm">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">ACCURACY</span>
+                        <span class="stat-value" id="htmlAccuracy">100%</span>
+                    </div>
+                </div>
+                
+                <div class="typing-stage code-stage">
+                    <div class="stage-header">
+                        <span class="stage-pill code-pill">HTML Snippet</span>
+                        <span class="stage-hint">Practice tags, attributes, and developer syntax</span>
+                    </div>
+                    <div class="code-display" id="htmlDisplay" tabindex="0"></div>
+                    <div class="input-wrapper">
+                        <textarea class="typing-input code-input" id="htmlInput" placeholder="Type the HTML code here..." autocomplete="off" spellcheck="false"></textarea>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startHtml">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>Start Practice</span>
+                    </button>
+                    <button class="btn btn-secondary" id="resetHtml">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                    <button class="btn btn-secondary" id="newSnippet">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 3 21 3 21 8"></polyline>
+                            <line x1="4" y1="20" x2="21" y2="3"></line>
+                            <polyline points="21 16 21 21 16 21"></polyline>
+                            <line x1="15" y1="15" x2="21" y2="21"></line>
+                            <line x1="4" y1="4" x2="9" y2="9"></line>
+                        </svg>
+                        <span>New Snippet</span>
+                    </button>
+                    <button class="btn btn-secondary" id="toggleBackspaceHtml">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                            <line x1="18" y1="9" x2="12" y2="15"></line>
+                            <line x1="12" y1="9" x2="18" y2="15"></line>
+                        </svg>
+                        <span>Disable Backspace</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Word Race Game -->
+            <div id="word-race" class="tab-content" role="tabpanel">
+                <div class="game-info">
+                    <div class="stat-item">
+                        <span class="stat-label">WORDS COMPLETED</span>
+                        <span class="stat-value" id="wordsCompleted">0/10</span>
+                    </div>
+                    <div class="stat-item stat-highlight">
+                        <span class="stat-label">COUNTDOWN</span>
+                        <span class="stat-value" id="raceTimer">30s</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">SCORE</span>
+                        <span class="stat-value" id="raceScore">0</span>
+                    </div>
+                </div>
+                
+                <div class="race-area">
+                    <div class="race-word-box">
+                        <span class="race-sublabel">CURRENT TARGET</span>
+                        <div class="race-word" id="raceWord">Click Start Race to begin</div>
+                    </div>
+                    <div class="race-input-container">
+                        <input type="text" class="race-input" id="raceInput" placeholder="Type word and press Enter" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startRace">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>Start Race</span>
+                    </button>
+                    <button class="btn btn-secondary" id="resetRace">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Typing Shooter Game -->
+            <div id="typing-shooter" class="tab-content" role="tabpanel">
+                <div class="game-info">
+                    <div class="stat-item">
+                        <span class="stat-label">TARGETS INTERCEPTED</span>
+                        <span class="stat-value" id="targetsHit">0</span>
+                    </div>
+                    <div class="stat-item stat-highlight">
+                        <span class="stat-label">RADAR SCORE</span>
+                        <span class="stat-value" id="shooterScore">0</span>
+                    </div>
+                    <div class="stat-item stat-danger">
+                        <span class="stat-label">SYSTEM INTEGRITY</span>
+                        <span class="stat-value" id="lives">3</span>
+                    </div>
+                </div>
+                
+                <div class="shooter-arena-wrapper">
+                    <div class="shooter-area" id="shooterArea">
+                        <div class="shooter-instruction">Type incoming falling words to neutralize them</div>
+                        <div class="shooter-grid-overlay" aria-hidden="true"></div>
+                    </div>
+                </div>
+                
+                <div class="shooter-controls-container">
+                    <input type="text" class="shooter-input" id="shooterInput" placeholder="Neutralize targets here..." autocomplete="off" spellcheck="false">
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="startShooter">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>Start Game</span>
+                    </button>
+                    <button class="btn btn-secondary" id="resetShooter">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content" role="tabpanel">
+                <div class="section-heading">
+                    <h2>Performance & Telemetry</h2>
+                    <p class="section-desc">Lifetime personal records and practice session metrics</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-card-badge">RECORD</span>
+                        <span class="stat-label">BEST TYPING SPEED</span>
+                        <div class="stat-card-value">
+                            <span class="stat-value" id="statsBestWpm">0</span>
+                            <span class="stat-unit">WPM</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-badge">ARCADE</span>
+                        <span class="stat-label">WORD RACE HIGH SCORE</span>
+                        <div class="stat-card-value">
+                            <span class="stat-value" id="statsBestRace">0</span>
+                            <span class="stat-unit">PTS</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-badge">DEFENSE</span>
+                        <span class="stat-label">SHOOTER HIGH SCORE</span>
+                        <div class="stat-card-value">
+                            <span class="stat-value" id="statsBestShooter">0</span>
+                            <span class="stat-unit">PTS</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-badge">ACTIVITY</span>
+                        <span class="stat-label">TOTAL TESTS COMPLETED</span>
+                        <div class="stat-card-value">
+                            <span class="stat-value" id="statsTestsCompleted">0</span>
+                            <span class="stat-unit">RUNS</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-badge">PALETTE</span>
+                        <span class="stat-label">ACTIVE PALETTE</span>
+                        <div class="stat-card-value">
+                            <span class="stat-value" id="statsTheme">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="telemetry-banner">
+                    <div class="telemetry-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </div>
+                    <div class="fun-fact" id="funFact"></div>
+                </div>
+
+                <footer class="app-footer">
+                    <span>TypeRush Trainer</span>
+                    <span class="footer-separator">•</span>
+                    <span>Crafted for high velocity typing by <a href="https://muhaiminsalayk.netlify.app" target="_blank" rel="noopener">SALAY</a></span>
+                </footer>
+            </div>
+
+            <!-- Content Manager Tab -->
+            <div id="content-manager" class="tab-content" role="tabpanel">
+                <div class="section-heading">
+                    <h2>Content Library</h2>
+                    <p class="section-desc">Manage custom practice corpuses stored locally in your browser</p>
+                </div>
+
+                <div class="editor-grid">
+                    <div class="content-section">
+                        <div class="editor-header">
+                            <div>
+                                <h3>Typing Test Corpus</h3>
+                                <p class="editor-hint">Enter custom sentences or paragraphs, one per line.</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="saveTypingTexts">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                <span>Save Texts</span>
+                            </button>
+                        </div>
+                        <textarea id="typingTextsEditor" class="content-editor" placeholder="Enter typing test texts (one per line)..." autocomplete="off" spellcheck="false"></textarea>
+                    </div>
+                    
+                    <div class="content-section">
+                        <div class="editor-header">
+                            <div>
+                                <h3>HTML & Code Snippets</h3>
+                                <p class="editor-hint">Enter code snippets for programming drills, one per line.</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="saveHtmlSnippets">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                <span>Save Snippets</span>
+                            </button>
+                        </div>
+                        <textarea id="htmlSnippetsEditor" class="content-editor code-font" placeholder="Enter HTML snippets (one per line)..." autocomplete="off" spellcheck="false"></textarea>
+                    </div>
+                </div>
+                
+                <div class="status-message" id="statusMessage" role="status" aria-live="polite"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- GameMonetize Ad In-Progress Pause Overlay -->
+    <div id="adPauseOverlay" class="ad-pause-overlay" aria-hidden="true">
+        <div class="ad-pause-card">
+            <div class="ad-spinner"></div>
+            <h3>Game Paused</h3>
+            <p>Advertisement is in progress. Your game and timer will resume automatically once the ad finishes.</p>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="js/script.js"></script>
+</body>
+</html>
