@@ -1,6 +1,8 @@
 dist
 build
 *.spec
+!typerush.spec
+release/
 __pycache__/
 *.pyc
 .agent
